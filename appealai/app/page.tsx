@@ -1,230 +1,277 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Upload, MessageCircle, FileText, Send, Shield, Clock, CheckCircle } from "lucide-react"
-import Link from "next/link"
+import { Input } from "@/components/ui/input"
+import { Upload, MessageCircle, Send, Shield, Paperclip, Mic, MicOff, Zap } from "lucide-react"
 
-export default function LandingPage() {
+interface Message {
+  id: string
+  type: "user" | "ai"
+  content: string
+  timestamp: Date
+}
+
+export default function ChatbotPage() {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "1",
+      type: "ai",
+      content:
+        "⚡ Welcome to AppealAI - your advanced dispute resolution system. Upload your parking ticket or housing charge notice, and I'll analyze it to craft a professional dispute letter. What violation would you like to contest?",
+      timestamp: new Date(),
+    },
+  ])
+  const [inputValue, setInputValue] = useState("")
+  const [isTyping, setIsTyping] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [isListening, setIsListening] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setUploadedFile(file)
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        type: "user",
+        content: `📎 Document uploaded: ${file.name}`,
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, newMessage])
+
+      // Simulate AI response
+      setTimeout(() => {
+        setIsTyping(true)
+        setTimeout(() => {
+          const aiResponse: Message = {
+            id: (Date.now() + 1).toString(),
+            type: "ai",
+            content:
+              "🔍 Document analysis complete. I've processed your violation notice and identified key dispute opportunities. Tell me: Were you parked in compliance with posted signage? Any mitigating circumstances I should factor into your defense strategy?",
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, aiResponse])
+          setIsTyping(false)
+          scrollToBottom()
+        }, 2000)
+      }, 500)
+    }
+  }
+
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return
+
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      type: "user",
+      content: inputValue,
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, newMessage])
+    setInputValue("")
+    setIsTyping(true)
+
+    // Simulate AI response
+    setTimeout(() => {
+      const responses = [
+        "⚡ Analyzing your case... I've identified several strong legal arguments for your dispute. Let me gather additional context to maximize your success rate.",
+        "🎯 Excellent information. I'm generating a customized dispute letter optimized for your jurisdiction's requirements. This approach typically yields higher success rates.",
+        "✨ Perfect! I've created a comprehensive legal argument based on your case specifics. Would you like me to explain the strategic reasoning behind each dispute point?",
+        "🚀 Case analysis complete. I've detected multiple viable defense angles and crafted a professional dispute letter. Your case shows strong merit - finalizing optimization now.",
+      ]
+
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)]
+
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "ai",
+        content: randomResponse,
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, aiResponse])
+      setIsTyping(false)
+      scrollToBottom()
+    }, 1500)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  const toggleVoiceInput = () => {
+    setIsListening(!isListening)
+    // Voice input simulation - in real app would use Web Speech API
+    if (!isListening) {
+      setTimeout(() => {
+        setIsListening(false)
+        setInputValue("I was parked legally but the signage was obscured by construction equipment")
+      }, 3000)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b glow-border bg-card/30 backdrop-blur-md sticky top-0 z-10 electric-gradient">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Shield className="h-8 w-8 text-primary" />
-            <span className="text-xl font-serif font-semibold">AI Dispute Assistant</span>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Zap className="h-8 w-8 electric-text pulse-glow" />
+              <div className="absolute inset-0 h-8 w-8 electric-text opacity-50 animate-ping" />
+            </div>
+            <span className="text-2xl font-serif font-bold electric-text">AppealAI</span>
           </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
-              How it Works
-            </Link>
-            <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </Link>
-            <Button variant="outline" size="sm">
-              Sign In
-            </Button>
-          </nav>
+          <div className="text-sm text-accent font-medium">UPLOAD • ANALYZE • DISPUTE</div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-balance leading-tight">
-                Dispute unfair charges in minutes
-              </h1>
-              <p className="text-xl text-muted-foreground text-pretty leading-relaxed">
-                Contest parking tickets and housing charges with AI-powered assistance. Professional dispute letters
-                generated instantly.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/dashboard">
-                <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6">
-                  <Upload className="mr-2 h-5 w-5" />
-                  Upload Ticket/Notice
-                </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 bg-transparent">
-                Watch Demo
-              </Button>
-            </div>
-
-            {/* Disclaimer */}
-            <div className="bg-muted/50 border border-border rounded-lg p-4">
-              <p className="text-sm text-muted-foreground">
-                <Shield className="inline h-4 w-4 mr-2" />
-                Not legal advice. Demo only. Always consult with a qualified attorney for legal matters.
-              </p>
-            </div>
-          </div>
-
-          {/* Hero Illustration */}
-          <div className="relative">
-            <Card className="p-8 bg-card/50 backdrop-blur-sm">
-              <div className="space-y-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                    <MessageCircle className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="h-3 bg-muted rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-muted rounded w-1/2"></div>
-                  </div>
+      <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
+        <Card className="h-full flex flex-col glow-effect bg-card/50 backdrop-blur-sm border-primary/30">
+          {/* Messages Area */}
+          <div className="flex-1 p-6 overflow-y-auto space-y-4 min-h-[500px]">
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[80%] rounded-xl p-4 backdrop-blur-sm ${
+                    message.type === "user"
+                      ? "bg-primary/80 text-primary-foreground glow-effect"
+                      : "bg-muted/60 text-foreground glow-border"
+                  }`}
+                >
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <span className="text-xs opacity-70 mt-2 block">
+                    {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
                 </div>
+              </div>
+            ))}
 
-                <div className="space-y-3">
-                  <div className="bg-primary/10 rounded-lg p-3">
-                    <div className="h-2 bg-primary/30 rounded w-full mb-2"></div>
-                    <div className="h-2 bg-primary/30 rounded w-2/3"></div>
-                  </div>
-
-                  <div className="bg-secondary/10 rounded-lg p-3">
-                    <div className="h-2 bg-secondary/30 rounded w-4/5 mb-2"></div>
-                    <div className="h-2 bg-secondary/30 rounded w-3/5"></div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <span className="text-sm text-muted-foreground">AI Assistant</span>
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot"></div>
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot"></div>
-                    <div className="w-2 h-2 bg-primary rounded-full typing-dot"></div>
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-muted/60 rounded-xl p-4 max-w-[80%] glow-border backdrop-blur-sm">
+                  <div className="flex items-center space-x-3">
+                    <MessageCircle className="h-4 w-4 electric-text pulse-glow" />
+                    <span className="text-sm text-accent">AI analyzing</span>
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 rounded-full typing-dot"></div>
+                      <div className="w-2 h-2 rounded-full typing-dot"></div>
+                      <div className="w-2 h-2 rounded-full typing-dot"></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </Card>
-          </div>
-        </div>
-      </section>
+            )}
 
-      {/* Process Flow */}
-      <section id="how-it-works" className="bg-muted/20 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Simple 4-step process</h2>
-            <p className="text-xl text-muted-foreground">From upload to submission in minutes</p>
+            <div ref={messagesEndRef} />
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Upload,
-                title: "Upload",
-                description: "Upload your ticket or notice",
-                step: "01",
-              },
-              {
-                icon: MessageCircle,
-                title: "Chat",
-                description: "Answer AI questions about your case",
-                step: "02",
-              },
-              {
-                icon: FileText,
-                title: "Generate",
-                description: "AI creates professional dispute letter",
-                step: "03",
-              },
-              {
-                icon: Send,
-                title: "Submit",
-                description: "Send directly to the issuing authority",
-                step: "04",
-              },
-            ].map((item, index) => (
-              <Card key={index} className="p-6 text-center relative">
-                <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
-                  {item.step}
-                </div>
-                <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <item.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-serif font-semibold text-lg mb-2">{item.title}</h3>
-                <p className="text-muted-foreground text-sm">{item.description}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+          <div className="border-t border-primary/30 p-4 space-y-4 bg-card/30 backdrop-blur-sm">
+            {/* File Upload */}
+            <div className="flex items-center justify-center">
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full max-w-md glow-border bg-muted/30 hover:bg-primary/20 hover:glow-effect transition-all duration-300"
+              >
+                <Upload className="mr-2 h-4 w-4 electric-text" />
+                <span className="electric-text">
+                  {uploadedFile ? `✓ ${uploadedFile.name}` : "UPLOAD VIOLATION NOTICE"}
+                </span>
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
 
-      {/* Features */}
-      <section id="features" className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Why choose AI Dispute Assistant?</h2>
-          </div>
+            {/* Message Input */}
+            <div className="flex items-end space-x-3">
+              <div className="flex-1 relative">
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Describe your situation or ask for analysis..."
+                  className="pr-12 min-h-[44px] bg-input/50 border-primary/30 glow-border backdrop-blur-sm text-foreground placeholder:text-muted-foreground focus:glow-effect transition-all duration-300"
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute right-8 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-primary/20"
+                >
+                  <Paperclip className="h-4 w-4 text-accent" />
+                </Button>
+              </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Clock,
-                title: "Save Time",
-                description: "Generate professional dispute letters in minutes, not hours",
-              },
-              {
-                icon: Shield,
-                title: "Expert Knowledge",
-                description: "AI trained on successful dispute cases and legal precedents",
-              },
-              {
-                icon: CheckCircle,
-                title: "Higher Success Rate",
-                description: "Structured approach increases your chances of a successful dispute",
-              },
-            ].map((feature, index) => (
-              <Card key={index} className="p-6">
-                <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
-                  <feature.icon className="h-6 w-6 text-accent" />
-                </div>
-                <h3 className="font-serif font-semibold text-xl mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={toggleVoiceInput}
+                className={`h-11 w-11 p-0 glow-border transition-all duration-300 ${
+                  isListening ? "bg-destructive/20 border-destructive/50 neon-glow" : "hover:bg-accent/20"
+                }`}
+              >
+                {isListening ? (
+                  <MicOff className="h-4 w-4 text-destructive" />
+                ) : (
+                  <Mic className="h-4 w-4 text-accent" />
+                )}
+              </Button>
 
-      {/* CTA Section */}
-      <section className="bg-primary/5 py-16">
+              <Button
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim()}
+                className="h-11 w-11 p-0 bg-primary hover:bg-primary/80 glow-effect disabled:opacity-50 disabled:glow-none transition-all duration-300"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[
+                "🚗 Legal parking compliance",
+                "⚠️ Signage visibility issues",
+                "🚨 Emergency circumstances",
+                "⚡ Generate dispute letter",
+              ].map((action) => (
+                <Button
+                  key={action}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputValue(action.split(" ").slice(1).join(" "))}
+                  className="text-xs glow-border bg-muted/20 hover:bg-primary/20 hover:glow-effect transition-all duration-300 text-accent"
+                >
+                  {action}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <footer className="border-t glow-border bg-card/20 backdrop-blur-md py-4 electric-gradient">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Ready to dispute that unfair charge?</h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Join thousands who have successfully contested their tickets
+          <p className="text-sm text-accent flex items-center justify-center">
+            <Shield className="inline h-4 w-4 mr-2 pulse-glow" />
+            DEMO SYSTEM • CONSULT QUALIFIED ATTORNEY FOR LEGAL MATTERS
           </p>
-          <Link href="/dashboard">
-            <Button size="lg" className="text-lg px-8 py-6">
-              <Upload className="mr-2 h-5 w-5" />
-              Get Started Now
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <Shield className="h-6 w-6 text-primary" />
-              <span className="font-serif font-semibold">AI Dispute Assistant</span>
-            </div>
-            <div className="flex space-x-6 text-sm text-muted-foreground">
-              <Link href="/privacy" className="hover:text-foreground transition-colors">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">
-                Terms
-              </Link>
-              <Link href="/contact" className="hover:text-foreground transition-colors">
-                Contact
-              </Link>
-            </div>
-          </div>
         </div>
       </footer>
     </div>
