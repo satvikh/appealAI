@@ -77,6 +77,12 @@ async def main(message: cl.Message):
     current_step = cl.user_session.get("current_step")
     dispute_type = cl.user_session.get("dispute_type")
     
+    # Extract files from message if any
+    files = message.elements if hasattr(message, 'elements') and message.elements else None
+    image_files = []
+    if files:
+        image_files = [f for f in files if hasattr(f, 'mime') and f.mime and f.mime.startswith('image/')]
+    
     if current_step == "selection":
         # Handle dispute type selection
         if "parking" in user_message:
@@ -94,11 +100,11 @@ async def main(message: cl.Message):
             ).send()
     
     elif current_step == "collecting":
-        # Route to appropriate handler
+        # Route to appropriate handler with file support
         if dispute_type == "parking":
-            await parking_handler.handle_message(message.content)
+            await parking_handler.handle_message(message.content, image_files)
         elif dispute_type == "housing":
-            await housing_handler.handle_message(message.content)
+            await housing_handler.handle_message(message.content, image_files)
     
     elif current_step == "review":
         # Handle document review and generation

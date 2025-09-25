@@ -1,6 +1,7 @@
 import chainlit as cl
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
+from .image_processor import ImageProcessor
 
 class ParkingTicketHandler:
     """Handler for collecting parking ticket dispute information."""
@@ -17,6 +18,8 @@ class ParkingTicketHandler:
             "personal_info"
         ]
         self.current_field = 0
+        self.image_processor = ImageProcessor()
+        self.uploaded_image_data = None
         
     async def start_collection(self):
         """Start the parking ticket information collection process."""
@@ -24,22 +27,57 @@ class ParkingTicketHandler:
             content="""
 🎫 **Parking Ticket Dispute Information Collection**
 
-I'll need to gather some information about your parking ticket to create a strong dispute document. Let's start with the basics:
+I can help you in two ways:
 
-**1. What is your parking ticket number?**
-(This is usually found at the top of your ticket)
+**📷 Option 1: Upload a Photo of Your Parking Ticket**  
+Take a clear photo of your parking ticket and upload it. I'll automatically extract the information using OCR technology.
+
+**✍️ Option 2: Enter Information Manually**  
+I'll ask you questions step-by-step to gather all the necessary information.
+
+---
+
+**To upload a photo:** Click the attachment button (📎) and select your ticket image  
+**To enter manually:** Type **"manual"** to start the guided process
+
+Which option would you prefer?
             """,
             author="AppealAI Assistant"
         ).send()
         
-        cl.user_session.set("collection_step", "ticket_number")
+        cl.user_session.set("collection_step", "upload_choice")
     
-    async def handle_message(self, user_input: str):
+    async def handle_message(self, user_input: str, files: Optional[list] = None):
         """Handle user responses during information collection."""
         step = cl.user_session.get("collection_step")
         collected_data = cl.user_session.get("collected_data", {})
         
-        if step == "ticket_number":
+        # Handle file uploads
+        if files and step in ["upload_choice", "image_processing"]:
+            await self.process_uploaded_images(files)
+            return
+        
+        if step == "upload_choice":
+            if "manual" in user_input.lower():
+                await self.start_manual_collection()
+            else:
+                await cl.Message(
+                    content="Please either upload a photo of your parking ticket using the 📎 attachment button, or type **'manual'** to enter information step-by-step.",
+                    author="AppealAI Assistant"
+                ).send()
+        
+        elif step == "confirm_extracted_data":
+            if user_input.lower() in ["yes", "y", "correct", "good"]:
+                await self.proceed_with_extracted_data()
+            elif user_input.lower() in ["no", "n", "incorrect", "wrong"]:
+                await self.start_manual_collection()
+            else:
+                await cl.Message(
+                    content="Please respond with **'yes'** if the information looks correct, or **'no'** if you'd like to enter it manually.",
+                    author="AppealAI Assistant"
+                ).send()
+        
+        elif step == "ticket_number":
             collected_data["ticket_number"] = user_input.strip()
             cl.user_session.set("collected_data", collected_data)
             cl.user_session.set("collection_step", "issue_date")
@@ -206,11 +244,142 @@ Does this information look correct?
         
         cl.user_session.set("current_step", "review")
     
-    async def restart_collection(self):
-        """Restart the information collection process."""
+    async def process_uploaded_images(self, files: list):
+        """Process uploaded parking ticket images."""
+        try:
+            # Show processing message
+            processing_msg = cl.Message(
+                content="📷 **Processing your parking ticket image...**\n\nUsing OCR technology to extract information. This may take a moment.",
+                author="AppealAI Assistant"
+            )
+            await processing_msg.send()
+            
+            # Process the first image
+            file = files[0]
+            
+            # Save the uploaded file temporarily
+            temp_path = f"temp_{file.name}"
+            with open(temp_path, "wb") as f:
+                f.write(file.content)
+            
+            # Extract data from image
+            extracted_data = self.image_processor.analyze_parking_ticket(temp_path)
+            
+            # Clean up temp file
+            import os
+            try:
+                os.remove(temp_path)
+            except:
+                pass
+            
+            # Store extracted data
+            cl.user_session.set("collected_data", extracted_data)
+            self.uploaded_image_data = extracted_data
+            
+            # Show extracted information for confirmation
+            await self.show_extracted_data_confirmation(extracted_data)
+            
+        except Exception as e:
+            await cl.Message(
+                content=f"❌ **Error processing image:** {str(e)}\n\nLet's proceed with manual entry instead. What is your parking ticket number?",
+                author="AppealAI Assistant"
+            ).send()
+            await self.start_manual_collection()
+    
+    async def show_extracted_data_confirmation(self, extracted_data: Dict[str, Any]):
+        """Show extracted data for user confirmation."""
+        confirmation_text = f"""
+✅ **Information Extracted from Your Parking Ticket**
+
+Here's what I found in your ticket image:
+
+**🎫 Ticket Details:**
+- **Ticket Number:** {extracted_data.get('ticket_number', 'Not found')}
+- **Issue Date:** {extracted_data.get('issue_date', 'Not found')}
+- **Violation:** {extracted_data.get('violation_description', 'Not found')}
+- **Location:** {extracted_data.get('location', 'Not found')}
+
+**🚗 Vehicle Information:**
+- **Vehicle Info:** {extracted_data.get('vehicle_info', 'Not found')}
+
+**💰 Fine Amount:**
+- **Amount:** {extracted_data.get('amount', 'Not found')}
+
+---
+
+**Does this information look correct?**
+
+- Type **'yes'** if the information is accurate and we can proceed
+- Type **'no'** if you'd like to enter the information manually instead
+
+*Note: You'll still be able to add your dispute reason and evidence in the next steps.*
+        """
+        
         await cl.Message(
-            content="🔄 Let's collect your parking ticket information again. What is your parking ticket number?",
+            content=confirmation_text,
+            author="AppealAI Assistant"
+        ).send()
+        
+        cl.user_session.set("collection_step", "confirm_extracted_data")
+    
+    async def proceed_with_extracted_data(self):
+        """Proceed with the extracted data and continue to dispute reason."""
+        collected_data = cl.user_session.get("collected_data", {})
+        
+        await cl.Message(
+            content="""
+✅ **Great! I've saved the ticket information.**
+
+Now let's continue with the dispute details:
+
+**6. Why are you disputing this ticket?**
+Please select the main reason or describe your situation:
+
+**Common reasons:**
+- **Signs were unclear/missing** - No signs or confusing signage
+- **Meter malfunction** - Meter was broken or not working
+- **Medical emergency** - Had to park due to medical emergency
+- **Vehicle breakdown** - Car broke down in that location  
+- **Incorrect information** - Ticket has wrong details
+- **Valid permit/payment** - Had valid parking permit/paid meter
+- **Other** - Describe your specific situation
+
+Please explain your reason in detail:
+            """,
+            author="AppealAI Assistant"
+        ).send()
+        
+        cl.user_session.set("collection_step", "dispute_reason")
+    
+    async def start_manual_collection(self):
+        """Start manual information collection."""
+        await cl.Message(
+            content="""
+📝 **Manual Information Entry**
+
+I'll guide you through entering your parking ticket information step by step.
+
+**1. What is your parking ticket number?**
+(This is usually found at the top of your ticket)
+            """,
             author="AppealAI Assistant"
         ).send()
         
         cl.user_session.set("collection_step", "ticket_number")
+    
+    async def restart_collection(self):
+        """Restart the information collection process."""
+        await cl.Message(
+            content="""
+🔄 **Let's start over with your parking ticket information.**
+
+You can either:
+- **📷 Upload a photo** of your parking ticket using the 📎 attachment button
+- **✍️ Type 'manual'** to enter information step-by-step
+
+What would you prefer?
+            """,
+            author="AppealAI Assistant"
+        ).send()
+        
+        cl.user_session.set("collection_step", "upload_choice")
