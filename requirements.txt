@@ -1,0 +1,7 @@
+chainlit==1.0.505
+python-docx==0.8.11
+reportlab==4.0.4
+jinja2==3.1.2
+python-dateutil==2.8.2
+pydantic==2.4.2
+asyncio

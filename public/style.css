@@ -1,0 +1,271 @@
+/* AppealAI Custom Styles */
+
+/* Remove Chainlit branding and customize header */
+.MuiAppBar-root {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+    box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15) !important;
+}
+
+/* Hide Chainlit logo/branding */
+.MuiAppBar-root .MuiTypography-root[variant="h6"] {
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+/* Custom logo/title styling */
+.MuiAppBar-root .MuiToolbar-root::before {
+    content: "⚖️";
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+/* Customize chat container */
+.MuiContainer-root {
+    max-width: 900px !important;
+}
+
+/* Style message bubbles */
+.message-container {
+    margin-bottom: 1.5rem !important;
+}
+
+/* User messages */
+.user-message {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+    color: white !important;
+    border-radius: 18px 18px 4px 18px !important;
+    box-shadow: 0 2px 12px rgba(30, 64, 175, 0.2) !important;
+    padding: 12px 18px !important;
+}
+
+/* Assistant messages */
+.assistant-message {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 18px 18px 18px 4px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 12px 18px !important;
+}
+
+/* Dark mode assistant messages */
+[data-theme="dark"] .assistant-message {
+    background: #1e293b !important;
+    border: 1px solid #475569 !important;
+    color: #f1f5f9 !important;
+}
+
+/* Input field styling */
+.MuiInputBase-root {
+    border-radius: 24px !important;
+    background: white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="dark"] .MuiInputBase-root {
+    background: #1e293b !important;
+    border: 1px solid #475569 !important;
+}
+
+.MuiInputBase-root:focus-within {
+    border-color: #1e40af !important;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.15), 0 0 0 3px rgba(30, 64, 175, 0.1) !important;
+}
+
+/* Send button styling */
+.MuiIconButton-root[type="submit"] {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+    color: white !important;
+    margin-left: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.MuiIconButton-root[type="submit"]:hover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3) !important;
+}
+
+/* Welcome screen customization */
+.welcome-screen {
+    padding: 2rem !important;
+    text-align: center !important;
+}
+
+.welcome-screen h1 {
+    color: #1e40af !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+    font-size: 2.5rem !important;
+}
+
+[data-theme="dark"] .welcome-screen h1 {
+    color: #3b82f6 !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+/* File upload/download styling */
+.MuiPaper-root[role="button"] {
+    border: 2px dashed #1e40af !important;
+    background: rgba(30, 64, 175, 0.05) !important;
+    transition: all 0.2s ease !important;
+}
+
+.MuiPaper-root[role="button"]:hover {
+    border-color: #1e3a8a !important;
+    background: rgba(30, 64, 175, 0.1) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.2) !important;
+}
+
+/* Success states */
+.success-message {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+    color: white !important;
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    margin: 1rem 0 !important;
+}
+
+/* Error states */
+.error-message {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+    color: white !important;
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    margin: 1rem 0 !important;
+}
+
+/* Loading states */
+.loading-message {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
+    color: white !important;
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    margin: 1rem 0 !important;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-container {
+    animation: fadeInUp 0.3s ease-out !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .MuiContainer-root {
+        padding: 1rem !important;
+    }
+    
+    .welcome-screen h1 {
+        font-size: 2rem !important;
+    }
+    
+    .MuiAppBar-root .MuiTypography-root[variant="h6"] {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* Hide any remaining Chainlit branding */
+[aria-label*="chainlit"],
+[title*="chainlit"],
+[alt*="chainlit"],
+.chainlit-logo,
+.MuiLink-root[href*="chainlit"] {
+    display: none !important;
+}
+
+/* Custom button styles for action buttons */
+.action-button {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    text-transform: none !important;
+}
+
+.action-button:hover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3) !important;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-success {
+    background: #10b981;
+}
+
+.status-warning {
+    background: #f59e0b;
+}
+
+.status-error {
+    background: #ef4444;
+}
+
+.status-info {
+    background: #3b82f6;
+}
+
+/* Enhance typography */
+.MuiTypography-root {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Code blocks and preformatted text */
+pre, code {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace !important;
+    font-size: 0.875rem !important;
+}
+
+[data-theme="dark"] pre,
+[data-theme="dark"] code {
+    background: #1e293b !important;
+    border: 1px solid #475569 !important;
+    color: #f1f5f9 !important;
+}
