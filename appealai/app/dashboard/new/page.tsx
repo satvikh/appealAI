@@ -7,6 +7,7 @@ import { Upload, FileText, Camera, Paperclip } from "lucide-react"
 import Link from "next/link"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DocumentUploadOCR } from "@/components/document-upload-ocr"
+import { OCRResultsDisplay } from "@/components/ocr-results-display" // Add this import
 
 export default function NewCasePage() {
   const [extractedText, setExtractedText] = useState<string>('')
