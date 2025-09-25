@@ -17,22 +17,50 @@ async def start():
     """Initialize the chat session."""
     await cl.Message(
         content="""
-# Welcome to AppealAI! 🚗🏠
+<div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(30, 64, 175, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border-radius: 16px; margin: 1rem 0;">
 
-I'm here to help you generate professional dispute documents for:
+# 🏛️ Welcome to AppealAI! 
 
-**1. Parking Tickets** 🎫
-- Contest unfair parking citations
-- Generate formal appeal letters
-- Include relevant legal arguments
+### Your AI-Powered Legal Document Assistant
 
-**2. Housing Issues** 🏠  
-- Landlord disputes
-- Maintenance complaints
-- Security deposit issues
-- Lease violations
+<div style="background: white; padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
 
-Please choose which type of dispute document you'd like to create by typing **"parking"** or **"housing"**.
+**🎯 What We Specialize In:**
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1rem 0;">
+
+<div style="text-align: left;">
+**🅿️ Parking Ticket Disputes**
+- Contest unfair citations
+- Professional appeal letters  
+- Legal argument templates
+- Evidence documentation
+</div>
+
+<div style="text-align: left;">
+**🏠 Housing Complaints**
+- Landlord dispute letters
+- Maintenance issue reports
+- Security deposit claims
+- Habitability complaints
+</div>
+
+</div>
+
+</div>
+
+<div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 1.5rem; border-radius: 12px; margin: 1rem 0;">
+
+### 🚀 Ready to Get Started?
+
+**Type "parking"** for parking ticket disputes  
+**Type "housing"** for housing-related issues
+
+<small>*Professional legal documents in minutes, not hours*</small>
+
+</div>
+
+</div>
         """,
         author="AppealAI Assistant"
     ).send()

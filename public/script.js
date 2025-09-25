@@ -44,6 +44,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Custom header logo replacement
+    function replaceHeaderLogo() {
+        const toolbar = document.querySelector('.MuiAppBar-root .MuiToolbar-root');
+        if (toolbar) {
+            // Remove the emoji icon and replace with logo
+            const beforePseudo = window.getComputedStyle(toolbar, '::before');
+            if (beforePseudo.content !== '""') {
+                toolbar.style.setProperty('--logo-display', 'block');
+            }
+        }
+        
+        // Hide any Chainlit title text
+        const titleElements = document.querySelectorAll('.MuiAppBar-root .MuiTypography-root');
+        titleElements.forEach(title => {
+            if (title.textContent && 
+                (title.textContent.toLowerCase().includes('chainlit') || 
+                 title.textContent.toLowerCase().includes('chatbot'))) {
+                title.style.display = 'none';
+            }
+        });
+    }
+    
     // Add smooth scrolling
     function addSmoothScrolling() {
         document.documentElement.style.scrollBehavior = 'smooth';
@@ -191,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         removeBranding();
         enhanceWelcomeScreen();
+        replaceHeaderLogo();
         addSmoothScrolling();
         enhanceMessages();
         setCustomFavicon();
@@ -199,7 +222,10 @@ document.addEventListener('DOMContentLoaded', function() {
         enhanceFileDownloads();
         
         // Run branding removal periodically to catch dynamic content
-        setInterval(removeBranding, 2000);
+        setInterval(() => {
+            removeBranding();
+            replaceHeaderLogo();
+        }, 2000);
     }
     
     // Initialize when DOM is ready
